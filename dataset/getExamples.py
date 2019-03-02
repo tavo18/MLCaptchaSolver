@@ -26,7 +26,7 @@ parametrosIniciales = {
 }
 
 with requests.Session() as s:
-	i=367
+	i=0
 	while True:
 		try:
 			url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f"
@@ -44,7 +44,7 @@ with requests.Session() as s:
 			urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
 			imr = s.get(urlCaptcha,headers = headers) #parte clave, obtener el captcha
 			im = Image.open(BytesIO(imr.content))
-			im.save("/home/tavo/MEGA/ProyectoBOT/dataset/ejemplos/"+str(i)+".png", "PNG")
+			im.save("/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/MLCaptchaSolver/test_captcha/"+str(i)+".png", "PNG")
 			print("Imagen "+str(i+1)+" de 1000")
 			i+=1	
 		except requests.exceptions.ConnectionError:
@@ -52,7 +52,7 @@ with requests.Session() as s:
 		except requests.exceptions.Timeout:
 			print("Timeout")
 
-		if i==999:
+		if i==10:
 			break
 
 
