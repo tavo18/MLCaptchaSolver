@@ -29,22 +29,23 @@ with requests.Session() as s:
 	i=0
 	while True:
 		try:
-			url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f"
-			r = s.get(url, headers = headers)
-			soup = BeautifulSoup(r.content, 'html5lib')
-			parametrosIniciales['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
-			parametrosIniciales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
-			parametrosIniciales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+			# url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f"
+			# r = s.get(url, headers = headers)
+			# soup = BeautifulSoup(r.content, 'html5lib')
+			# parametrosIniciales['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+			# parametrosIniciales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+			# parametrosIniciales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 			
 
-			r = s.post(url, data=parametrosIniciales, headers=headers)
+			# r = s.post(url, data=parametrosIniciales, headers=headers)
 			
-			soup = BeautifulSoup(r.content, 'html5lib')
-			# 
-			urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
+			# soup = BeautifulSoup(r.content, 'html5lib')
+			# # 
+			# urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
+			urlCaptcha = "https://prenotaonline.esteri.it/captcha/default.aspx?pos=1&vers=522597434"
 			imr = s.get(urlCaptcha,headers = headers) #parte clave, obtener el captcha
 			im = Image.open(BytesIO(imr.content))
-			im.save("/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/MLCaptchaSolver/test_captcha/"+str(i)+".png", "PNG")
+			im.save("/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/MLCaptchaSolver/test_captcha/size8/"+str(i)+".png", "PNG")
 			print("Imagen "+str(i+1)+" de 1000")
 			i+=1	
 		except requests.exceptions.ConnectionError:
