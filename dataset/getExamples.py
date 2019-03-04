@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
 
+EXAMPLES = 10
+DEST_FOLDER = "/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/MLCaptchaSolver/test_captcha/size4/"
+
 headers = {
 	"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0",
 	"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -44,15 +47,15 @@ with requests.Session() as s:
 			urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
 			imr = s.get(urlCaptcha,headers = headers) #parte clave, obtener el captcha
 			im = Image.open(BytesIO(imr.content))
-			im.save("/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/dataset/ejemplos2/"+str(i)+".png", "PNG")
-			print("Imagen "+str(i+1)+" de 1000")
+			im.save(DEST_FOLDER+str(i)+".png", "PNG")
+			print("Imagen "+str(i+1)+" de "+str(EXAMPLES))
 			i+=1	
 		except requests.exceptions.ConnectionError:
 			print("Error de conexion")
 		except requests.exceptions.Timeout:
 			print("Timeout")
 
-		if i==1000:
+		if i==EXAMPLES:
 			break
 
 
