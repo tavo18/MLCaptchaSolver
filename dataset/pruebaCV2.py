@@ -5,23 +5,38 @@ import pickle
 from PIL import Image
 from io import BytesIO
 
+DEST_FOLDER = "/home/tavo/MEGA/ProyectoBOT/dataset/ejemplos8/tercera"
 
-image = cv2.imread("/home/tavo/MEGA/ProyectoBOT/captcha2.jpeg")
+#image = cv2.imread("/home/tavo/MEGA/ProyectoBOT/captcha2.jpeg")
 # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+# image = cv2.imread("/home/tavo/MEGA/ProyectoBOT/dataset/ejemplos8/"+str(i)+".png")
+image = Image.open("/home/tavo/MEGA/ProyectoBOT/dataset/ejemplos8/0.png")
+width, height = image.size
+# image.crop((int(width/10),13,int(width/10)*2.3,int(height/2)))
+# image.crop((int(width/10)*2,13,int(width/10)*3.3,int(height/2)))
+# image.crop((int(width/10)*3,13,int(width/10)*4.3,int(height/2)))
+# image.crop((int(width/10)*4,13,int(width/10)*5.3,int(height/2)))
+# image.crop((int(width/10)*5,13,int(width/10)*6.3,int(height/2)))
+# image.crop((int(width/10)*6,13,int(width/10)*7.3,int(height/2)))
+image = image.crop((int(width/10)*7,13,int(width/10)*8.3,int(height/2)))
+# image = image.crop((int(width/10)*8,13,int(width/10)*9.3,int(height/2)))
 
-height,width,c = image.shape
-print(height, width)
-cropped1 = image[0:int(height/2),int(width/10):int(width/10)*2]
-cropped2 = image[0:int(height/2),int(width/10)*2:int(width/10)*3]
-cropped3 = image[0:int(height/2),int(width/10)*3:int(width/10)*4]
-cropped4 = image[0:int(height/2),int(width/10)*4:int(width/10)*5]
-cropped5 = image[0:int(height/2),int(width/10)*5:int(width/10)*6]
-cropped6 = image[0:int(height/2),int(width/10)*6:int(width/10)*7]
-cropped7 = image[0:int(height/2),int(width/10)*7:int(width/10)*8]
-cropped8 = image[0:int(height/2),int(width/10)*8:int(width/10)*9]
-cv2.imshow("output",cropped1)
-cv2.waitKey()
+# image = image[15:int(height/2),int(width/10)*3:int(width/10)*4]
+image.show()
+	
+# height,width,c = image.shape
+# print(height, width)
+# cropped1 = image[15:int(height/2),int(width/10):int(width/10)*2]
+# cropped2 = image[15:int(height/2),int(width/10)*2:int(width/10)*3]
+# cropped3 = image[15:int(height/2),int(width/10)*3:int(width/10)*4]
+# cropped4 = image[15:int(height/2),int(width/10)*4:int(width/10)*5]
+# cropped5 = image[15:int(height/2),int(width/10)*5:int(width/10)*6]
+# cropped6 = image[15:int(height/2),int(width/10)*6:int(width/10)*7]
+# cropped7 = image[15:int(height/2),int(width/10)*7:int(width/10)*8]
+# cropped8 = image[15:int(height/2),int(width/10)*8:int(width/10)*9]
+# cv2.imshow("output",cropped3)
+# cv2.waitKey()
 
 # cImg = []
 # height,width,c = image.shape

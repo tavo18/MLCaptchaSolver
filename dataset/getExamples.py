@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
 
-EXAMPLES = 10
-DEST_FOLDER = "/home/tavo/Escritorio/Enlace hacia MEGA/ProyectoBOT/MLCaptchaSolver/test_captcha/size4/"
+EXAMPLES = 1000
+DEST_FOLDER = "/home/tavo/MEGA/ProyectoBOT/dataset/ejemplos8/"
+URL_CAPTCHA = "https://prenotaonline.esteri.it/captcha/default.aspx?pos=1&vers=497517779"
 
 headers = {
 	"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0",
@@ -32,20 +33,7 @@ with requests.Session() as s:
 	i=0
 	while True:
 		try:
-			url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f"
-			r = s.get(url, headers = headers)
-			soup = BeautifulSoup(r.content, 'html5lib')
-			parametrosIniciales['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
-			parametrosIniciales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
-			parametrosIniciales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
-			
-
-			r = s.post(url, data=parametrosIniciales, headers=headers)
-			
-			soup = BeautifulSoup(r.content, 'html5lib')
-			# 
-			urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
-			imr = s.get(urlCaptcha,headers = headers) #parte clave, obtener el captcha
+			imr = s.get(URL_CAPTCHA,headers = headers) #parte clave, obtener el captcha
 			im = Image.open(BytesIO(imr.content))
 			im.save(DEST_FOLDER+str(i)+".png", "PNG")
 			print("Imagen "+str(i+1)+" de "+str(EXAMPLES))
