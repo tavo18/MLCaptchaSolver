@@ -31,10 +31,10 @@ parser.add_argument('query')
 
 
 class PredictCaptcha(Resource):
-    def get(self):
+    def post(self):
         # use parser and find the user's query
-        args = parser.parse_args()
-        image = args['query']
+        pil_image = Image.open(request.files['file'])
+        image = cv2.cvtColor(numpy.array(pil_image), cv2.COLOR_RGB2BGR)
 
         # vectorize the user's query and make a prediction
         letter_images = []
