@@ -27,22 +27,22 @@ captcha_image_files = list(paths.list_images(CAPTCHA_IMAGE_FOLDER))
 for image_file in captcha_image_files:
     # Load the image and convert it to grayscale
     image = cv2.imread(image_file)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # define the list of letters in the captcha
     letter_images = []
-    height,width = image.shape
+    height,width,c = image.shape
     
 
     # 8 characters captchas:
-    letter_image_regions.append(image[13:int(height/2),int(width/10):int(width/10)*2.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*2:int(width/10)*3.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*3:int(width/10)*4.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*4:int(width/10)*5.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*5:int(width/10)*6.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*6:int(width/10)*7.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*7:int(width/10)*8.3])
-    letter_image_regions.append(image[13:int(height/2),int(width/10)*8:int(width/10)*9.3])    
+    letter_images.append(image[13:int(height/2),int(width/10):int((width/10)*2.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*2:int((width/10)*3.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*3:int((width/10)*4.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*4:int((width/10)*5.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*5:int((width/10)*6.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*6:int((width/10)*7.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*7:int((width/10)*8.3)])
+    letter_images.append(image[13:int(height/2),int(width/10)*8:int((width/10)*9.3)])    
     
     # Create a list to hold our predicted letters
     predictions = []
@@ -52,7 +52,7 @@ for image_file in captcha_image_files:
 
         # Turn the single image into a 4d list of images to make Keras happy
         # Add a third channel dimension to the image to make Keras happy
-        letter_image = np.expand_dims(letter_image, axis=2)
+        # letter_image = np.expand_dims(letter_image, axis=2)
         letter_image = np.expand_dims(letter_image, axis=0)
 
         
