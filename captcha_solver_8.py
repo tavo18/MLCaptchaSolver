@@ -5,8 +5,8 @@ import numpy as np
 import imutils
 import cv2
 import pickle
-from PIL import Image
-from io import BytesIO
+#from PIL import Image
+#from io import BytesIO
 
 MODEL_FILENAME = "captcha_model_8.hdf5"
 MODEL_LABELS_FILENAME = "model_labels_8.dat"
