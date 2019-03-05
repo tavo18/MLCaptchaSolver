@@ -12,6 +12,8 @@ MODEL_FILENAME = "captcha_model_8.hdf5"
 MODEL_LABELS_FILENAME = "model_labels_8.dat"
 CAPTCHA_IMAGE_FOLDER = "test_captcha/size8" 
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 
 # Load up the model labels (so we can translate model predictions to actual letters)
 with open(MODEL_LABELS_FILENAME, "rb") as f:
