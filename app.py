@@ -54,13 +54,15 @@ class PredictCaptcha(Resource):
         
         # Create a list to hold our predicted letters
         predictions = []
-        predictions.append(image.shape)
-        predictions.append(letter_images[0].shape)
+        # predictions.append(image.shape)
+        # predictions.append(letter_images[0].shape)
 
-        output = predictions
+        # output = predictions
 
         # loop over the letters
-        # for letter_image in letter_images:
+        for letter_image in letter_images:
+
+
 
         #     # Turn the single image into a 4d list of images to make Keras happy
         #     # Add a third channel dimension to the image to make Keras happy
@@ -70,15 +72,15 @@ class PredictCaptcha(Resource):
             
 
         #     # Ask the neural network to make a prediction
-        #     prediction = model.predict(letter_image)
+            prediction = model.predict(letter_image)
 
         #     # Convert the one-hot-encoded prediction back to a normal letter
-        #     letter = lb.inverse_transform(prediction)[0]
-        #     predictions.append(letter)
+            letter = lb.inverse_transform(prediction)[0]
+            predictions.append(letter)
 
-        # captcha_text = "".join(predictions)
+        captcha_text = "".join(predictions)
         # # create JSON object
-        # output = {'prediction': captcha_text}
+        output = {'prediction': captcha_text}
         
         return output
 
