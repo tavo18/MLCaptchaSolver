@@ -25,6 +25,7 @@ with open(MODEL_LABELS_FILENAME, "rb") as f:
 
 # Load the trained neural network
 model = load_model(MODEL_FILENAME)
+model._make_predict_function()
 
 # argument parsing
 parser = reqparse.RequestParser()
