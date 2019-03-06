@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import reqparse, abort, Api, Resource
 import pickle
 import numpy as np
@@ -7,6 +7,7 @@ from imutils import paths
 import imutils
 import cv2
 import os, os.path
+from PIL import Image
 
 app = Flask(__name__)
 api = Api(app)
@@ -34,7 +35,7 @@ class PredictCaptcha(Resource):
     def post(self):
         # use parser and find the user's query
         pil_image = Image.open(request.files['file'])
-        image = cv2.cvtColor(numpy.array(pil_image), cv2.COLOR_RGB2BGR)
+        image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
 
         # vectorize the user's query and make a prediction
         letter_images = []
@@ -53,27 +54,31 @@ class PredictCaptcha(Resource):
         
         # Create a list to hold our predicted letters
         predictions = []
+        predictions.append(image.shape)
+        predictions.append(letter_images[0].shape)
+
+        output = predictions
 
         # loop over the letters
-        for letter_image in letter_images:
+        # for letter_image in letter_images:
 
-            # Turn the single image into a 4d list of images to make Keras happy
-            # Add a third channel dimension to the image to make Keras happy
-            # letter_image = np.expand_dims(letter_image, axis=2)
-            letter_image = np.expand_dims(letter_image, axis=0)
+        #     # Turn the single image into a 4d list of images to make Keras happy
+        #     # Add a third channel dimension to the image to make Keras happy
+        #     # letter_image = np.expand_dims(letter_image, axis=2)
+        #     letter_image = np.expand_dims(letter_image, axis=0)
 
             
 
-            # Ask the neural network to make a prediction
-            prediction = model.predict(letter_image)
+        #     # Ask the neural network to make a prediction
+        #     prediction = model.predict(letter_image)
 
-            # Convert the one-hot-encoded prediction back to a normal letter
-            letter = lb.inverse_transform(prediction)[0]
-            predictions.append(letter)
+        #     # Convert the one-hot-encoded prediction back to a normal letter
+        #     letter = lb.inverse_transform(prediction)[0]
+        #     predictions.append(letter)
 
-        captcha_text = "".join(predictions)
-        # create JSON object
-        output = {'prediction': captcha_text}
+        # captcha_text = "".join(predictions)
+        # # create JSON object
+        # output = {'prediction': captcha_text}
         
         return output
 
