@@ -13,5 +13,6 @@ files = {
 
 url = 'http://127.0.0.1:5000/'
 # params ={'query': image}
-response = requests.post(url, files=files)
-print(response.content)
+response = requests.post(url, files=files).json()
+print(response['prediction'])
+# response['prediction'] is actually the desired captcha

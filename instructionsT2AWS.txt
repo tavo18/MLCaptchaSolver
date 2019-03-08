@@ -9,3 +9,4 @@ sudo pip3 install sklearn
 sudo pip3 install tensorflow
 sudo pip3 install keras
 sudo apt install python3-opencv
+sudo pip3 install pillow

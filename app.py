@@ -32,7 +32,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('query')
 
 
-class PredictCaptcha(Resource):
+class PredictCaptcha8(Resource):
     def post(self):
         # use parser and find the user's query
         pil_image = Image.open(request.files['file'])
@@ -68,7 +68,7 @@ class PredictCaptcha(Resource):
         #     # Turn the single image into a 4d list of images to make Keras happy
         #     # Add a third channel dimension to the image to make Keras happy
         #     # letter_image = np.expand_dims(letter_image, axis=2)
-        #     letter_image = np.expand_dims(letter_image, axis=0)
+            letter_image = np.expand_dims(letter_image, axis=0)
 
             
 
@@ -79,16 +79,16 @@ class PredictCaptcha(Resource):
             letter = lb.inverse_transform(prediction)[0]
             predictions.append(letter)
 
-        captcha_text = "".join(predictions)
+        captcha_text = ''.join(predictions)
         # # create JSON object
-        output = {'prediction': captcha_text}
         
-        return output
+        
+        return {'prediction': captcha_text}
 
 
 # Setup the Api resource routing here
 # Route the URL to the resource
-api.add_resource(PredictCaptcha, '/')
+api.add_resource(PredictCaptcha8, '/')
 
 
 if __name__ == '__main__':
