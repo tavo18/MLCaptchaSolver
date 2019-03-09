@@ -95,10 +95,11 @@ class PredictCaptcha4(Resource):
         # use parser and find the user's query
         pil_image = Image.open(request.files['file'])
         image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # vectorize the user's query and make a prediction
         letter_images = []
-        height,width,c = image.shape
+        height,width = image.shape
         
 
         # 4 characters captchas:
@@ -118,19 +119,15 @@ class PredictCaptcha4(Resource):
         # loop over the letters
         for letter_image in letter_images:
 
-
-
-        #     # Turn the single image into a 4d list of images to make Keras happy
-        #     # Add a third channel dimension to the image to make Keras happy
-        #     # letter_image = np.expand_dims(letter_image, axis=2)
+            # Turn the single image into a 4d list of images to make Keras happy
+            # Add a third channel dimension to the image to make Keras happy
+            letter_image = np.expand_dims(letter_image, axis=2)
             letter_image = np.expand_dims(letter_image, axis=0)
 
-            
-
-        #     # Ask the neural network to make a prediction
+            # Ask the neural network to make a prediction
             prediction = model4.predict(letter_image)
 
-        #     # Convert the one-hot-encoded prediction back to a normal letter
+            # Convert the one-hot-encoded prediction back to a normal letter
             letter = lb.inverse_transform(prediction)[0]
             predictions.append(letter)
 
