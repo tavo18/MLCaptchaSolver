@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from io import BytesIO
 
+USER = "marangoniricardo4@gmail.com"
+PASS = "Richard81"
+
 
 headers = {
 	"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0",
@@ -32,8 +35,8 @@ parametrosLogin = {
 	'__EVENTTARGET': '',
 	'__EVENTARGUMENT': '',
 	'BtnConfermaL': 'Login',
-	'UserName':	'', #Otros datos
-	'Password':	'' #Otros datos
+	'UserName':	USER
+	'Password':	PASS
 }
 
 
@@ -51,23 +54,25 @@ with requests.Session() as s:
 	soup = BeautifulSoup(r.content, 'html5lib')
 	# 
 	urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
-	imr = s.get(urlCaptcha,headers = headers) #parte clave, obtener el captcha
+	imr = s.get(urlCaptcha,headers = headers) 
 	im = Image.open(BytesIO(imr.content))
-	#im.show() #mostrar captcha
 
+	# 
 	files = {
-	    'file': ('image.png', im),
+	    'file': ('image.png', BytesIO(imr.content))
 	}
 
+	# Captcha prediction request to local server
 	response = requests.post('http://127.0.0.1:5000/4', files=files).json()
 	print(response['prediction'])
 
 
-	# parametrosLogin['loginCaptcha'] =  raw_input("Respuesta captcha: ")
-	# parametrosLogin['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
-	# parametrosLogin['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
-	# parametrosLogin['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+	parametrosLogin['loginCaptcha'] =  response['prediction']
+	parametrosLogin['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosLogin['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosLogin['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 
 
 
-	# r = s.post(url, data=parametrosLogin,headers=headers)
+	r = s.post(url, data=parametrosLogin,headers=headers)
+	print(r.content)
