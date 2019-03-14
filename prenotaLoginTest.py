@@ -80,6 +80,20 @@ parametrosDatosAdicionales = {
 	'__VIEWSTATEENCRYPTED':''
 }
 
+parametrosSeleccionDia = {
+	'__VIEWSTATEENCRYPTED': ''
+}
+
+parametrosConfirmacionDia = {
+	'ctl00$ContentPlaceHolder1$acc_Calendario1$repFasce$ctl01$btnConferma': 'Confirmación',
+	'__VIEWSTATEENCRYPTED': ''
+}
+
+parametrosConfirmacionFinal = {
+	'__VIEWSTATEENCRYPTED': '',
+	'ctl00$ContentPlaceHolder1$btnFinalConf': 'Confirmación'
+}
+
 
 with requests.Session() as s:
 	url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100064&returnUrl=%2f%2f"
@@ -173,7 +187,99 @@ with requests.Session() as s:
 	parametrosDatosAdicionales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 
 	r = s.post(urlIn, data=parametrosDatosAdicionales,headers=headers)
-	print(r.content)
 
 	#---------------- FIN SECCION DATOS ADICIONALES ---------------
+
+	#---------------- SECCION CALENDARIO ---------------
+
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	if soup.find('div', attrs={'id': 'calwrapper'}):
+		print("Se ingresó al calendario de forma correcta.")
+
+
+	# A LAS 20 EN PUNTO HACER EL REQUEST AL DIA CORRESPONDIENTE
+
+	print("Esperando por turnos...")
+	# Mientras el resultado de la siguiente linea sea falso, reenviar post request anterior:
+	contador = 1
+	while not soup.find('input', attrs={'class': 'pulsanteCalendario'}):
+		try:
+			time.sleep(2)
+			r = s.post(urlIn, data=parametrosDatosAdicionales,headers=headers)
+			soup = BeautifulSoup(r.content, 'html5lib')
+			print("Por ahora nada... intento número: "+str(contador))
+			contador = contador + 1
+		except requests.exceptions.ConnectionError:
+			print("Error de conexion")
+	# soup.find('input', attrs={'class': 'pulsanteCalendario'})
+	# Tener en cuenta la restricción de 100 reenvios de request (desconecta de la cuenta)
+
+	# A partir de acá se salió del bucle anterior, lo cual indica que hay turnos disponibles
+	print("Trunos disponibles!")
+
+
+	# Nombre del input del calendario, se obtiene a partir de su clase 'pulsanteCalendario'
+	inputName = soup.find('input', attrs={'class': 'pulsanteCalendario'})['name'].encode("utf-8")
+	# Input de horarios
+	divOrari = soup.find('div', attrs={'id': 'orari'})
+	hiddenInputName = divOrari.find('input')['name'].encode("utf-8")
 	
+	# Seteo el valor (día) del input disponible en los parámetros del request
+	parametrosSeleccionDia[inputName] = soup.find('input', attrs={'class': 'pulsanteCalendario'})['value'].encode("utf-8")
+	# Setel de parámetro del hidden input del horario
+	parametrosSeleccionDia[hiddenInputName] = divOrari.find('input')['value'].encode("utf-8")
+	# Los tres de siempre
+	parametrosSeleccionDia['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosSeleccionDia['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosSeleccionDia['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+
+	# Post request para presionar el dia disponible
+	r = s.post(urlIn, data=parametrosSeleccionDia, headers=headers)
+
+	# --dia seleccionado--
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	# Input de horarios
+	divOrari = soup.find('div', attrs={'id': 'orari'})
+	hiddenInputName = divOrari.find('input')['name'].encode("utf-8")
+
+	# Seteo de parámetro del hidden input del horario (antes se obtuvo el nombre, luego, el valor)
+	parametrosConfirmacionDia[hiddenInputName] = divOrari.find('input')['value'].encode("utf-8")
+	# Los tres de siempre
+	parametrosConfirmacionDia['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosConfirmacionDia['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosConfirmacionDia['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+
+	# Post request para confirmar el dia disponible
+	r = s.post(urlIn, data=parametrosConfirmacionDia, headers=headers)
+
+	#---------------- FIN SECCION CALENDARIO ---------------
+
+	#---------------- SECCION CONFIRMACION FINAL ---------------
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	#SE MUESTRA EL CAPTCHA, SE LO INGRESA Y POR ÚLTIMO SE ENVÍA EL REQUEST FINAL
+	#PARA ESTE PASO FALTAN DETERMINAR LOS PARÁMETROS DEL REQUEST FINAL. HAY QUE SOLICITAR UN TURNO SI O SI.
+	urlCaptchaFinal = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'ctl00_ContentPlaceHolder1_confCaptcha'})['src']
+	imrFinal = s.get(urlCaptchaFinal,headers = headers)
+	# imFinal = Image.open(BytesIO(imrFinal.content))
+
+	files = {
+	    'file': ('image.png', BytesIO(imrFinal.content))
+	}
+	# Captcha prediction request to local server
+	response = requests.post('http://127.0.0.1:5000/8', files=files).json()
+	print("Obtained captcha: "+response['prediction'])
+
+	#Seteo del captcha a los parámetros del post request
+	parametrosConfirmacionFinal['ctl00_ContentPlaceHolder1_captchaConf'] = response['prediction']
+	# Los tres de siempre
+	parametrosConfirmacionFinal['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosConfirmacionFinal['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosConfirmacionFinal['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+
+	# Post request para confirmar el turno
+	r = s.post(urlIn, data=parametrosConfirmacionFinal, headers=headers)
+	#---------------- FIN SECCION CONFIRMACION FINAL ---------------
+	print(r.content)
