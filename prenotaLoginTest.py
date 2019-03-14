@@ -14,7 +14,7 @@ headers = {
 	"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
 	"Accept-Language": "es-AR,es;q=0.8,en-US;q=0.5,en;q=0.3",
 	"Accept-Encoding": "gzip, deflate, br",
-	"Referer": "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f",
+	"Referer": "https://prenotaonline.esteri.it/login.aspx?cidsede=100064&returnUrl=%2f%2f",
 	"Content-Type": "application/x-www-form-urlencoded",
 	# Content-Length: 32710
 	"Connection": "keep-alive",
@@ -35,22 +35,26 @@ parametrosLogin = {
 	'__EVENTTARGET': '',
 	'__EVENTARGUMENT': '',
 	'BtnConfermaL': 'Login',
-	'UserName':	USER
+	'UserName':	USER,
 	'Password':	PASS
 }
 
 
 with requests.Session() as s:
-	url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100076&returnUrl=%2f%2f"
+	url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100064&returnUrl=%2f%2f"
 	r = s.get(url, headers = headers)
 	soup = BeautifulSoup(r.content, 'html5lib')
 	parametrosIniciales['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
 	parametrosIniciales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
 	parametrosIniciales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 	
-
+	logger.info("Pressing first button...")
 	r = s.post(url, data=parametrosIniciales, headers=headers)
-	
+	if(r.status_code == 200){
+		logger.info("Success!")
+	}
+
+	logger.info("Completing log-in form...")
 	soup = BeautifulSoup(r.content, 'html5lib')
 	# 
 	urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
@@ -64,7 +68,7 @@ with requests.Session() as s:
 
 	# Captcha prediction request to local server
 	response = requests.post('http://127.0.0.1:5000/4', files=files).json()
-	print(response['prediction'])
+	logger.info("Obtained captcha: "+response['prediction'])
 
 
 	parametrosLogin['loginCaptcha'] =  response['prediction']
@@ -72,7 +76,12 @@ with requests.Session() as s:
 	parametrosLogin['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
 	parametrosLogin['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 
+	
 
+	r = s.post(url, data=parametrosLogin, headers=headers)
 
-	r = s.post(url, data=parametrosLogin,headers=headers)
-	print(r.content)
+	loginValidation = soup.find('input', attrs={'name': 'ctl00$repFunzioni$ctl01$btnMenuItem'})
+
+	if loginValidation:
+		logger.info("Successful log-in!")
+	
