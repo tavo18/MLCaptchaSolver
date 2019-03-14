@@ -39,6 +39,47 @@ parametrosLogin = {
 	'Password':	PASS
 }
 
+parametrosCita = {
+	'ctl00$repFunzioni$ctl00$btnMenuItem': 'Haga su cita'
+}
+
+parametrosTipoCita = {
+	#Parametros del servicio emision del pasaporte
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl01$h_idservizio': '796',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl01$h_settimane':	'2',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl01$h_bloccato':	'False',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl01$h_attivo':	'True',
+	# 'ctl00$ContentPlaceHolder1$rpServizi$ctl01$btnNomeServizio':	'Pasaportes',
+
+	#Parametros del servicio ciudadania hijos mayores de 18
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl02$h_idservizio':	'861',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl02$h_settimane':	'4',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl02$h_bloccato':	'False',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl02$h_attivo':	'True',
+	# 'ctl00$ContentPlaceHolder1$rpServizi$ctl02$btnNomeServizio':	'Ciudadanía+hijos+mayores+de+18+años',
+
+	#Parametros del servicio reconstrucción de ciudadanía
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl03$h_idservizio':	'1753',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl03$btnNomeServizio':	'Reconstrucción+de+ciudadanía',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl03$h_settimane':	'2',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl03$h_bloccato':	'False',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl03$h_attivo':	'True',
+	#Parametros del servicio visto consular
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl04$h_idservizio':	'1808',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl04$h_settimane':	'2',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl04$h_bloccato':	'False',
+	'ctl00$ContentPlaceHolder1$rpServizi$ctl04$h_attivo':	'True',
+	# 'ctl00$ContentPlaceHolder1$rpServizi$ctl04$btnNomeServizio':	'Legalización+de+actas'
+	'ctl00$ContentPlaceHolder1$hiServizio': '',
+	'__VIEWSTATEENCRYPTED':''
+}
+
+parametrosDatosAdicionales = {
+	'ctl00$ContentPlaceHolder1$acc_datiAddizionali1$btnContinua': 'Confirmación',
+	'ctl00$ContentPlaceHolder1$acc_datiAddizionali1$txtNote': '',
+	'__VIEWSTATEENCRYPTED':''
+}
+
 
 with requests.Session() as s:
 	url = "https://prenotaonline.esteri.it/login.aspx?cidsede=100064&returnUrl=%2f%2f"
@@ -48,13 +89,12 @@ with requests.Session() as s:
 	parametrosIniciales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
 	parametrosIniciales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
 	
-	logger.info("Pressing first button...")
+	print("Pressing first button...")
 	r = s.post(url, data=parametrosIniciales, headers=headers)
-	if(r.status_code == 200){
-		logger.info("Success!")
-	}
+	if(r.status_code == 200):
+		print("Success!")
 
-	logger.info("Completing log-in form...")
+	print("Completing log-in form...")
 	soup = BeautifulSoup(r.content, 'html5lib')
 	# 
 	urlCaptcha = "https://prenotaonline.esteri.it/"+soup.find('img', attrs={'id': 'captchaLogin'})['src']
@@ -68,7 +108,7 @@ with requests.Session() as s:
 
 	# Captcha prediction request to local server
 	response = requests.post('http://127.0.0.1:5000/4', files=files).json()
-	logger.info("Obtained captcha: "+response['prediction'])
+	print("Obtained captcha: "+response['prediction'])
 
 
 	parametrosLogin['loginCaptcha'] =  response['prediction']
@@ -80,8 +120,60 @@ with requests.Session() as s:
 
 	r = s.post(url, data=parametrosLogin, headers=headers)
 
+	soup = BeautifulSoup(r.content, 'html5lib')
+
 	loginValidation = soup.find('input', attrs={'name': 'ctl00$repFunzioni$ctl01$btnMenuItem'})
 
 	if loginValidation:
-		logger.info("Successful log-in!")
+		print("Successful log-in!")
+
+	# After 100 same get or post request, server disconects the account.
+
+	#---------------- SECCION HAGA SU CITA ---------------
+
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	parametrosCita['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("ascii")
+	parametrosCita['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("ascii")
+	parametrosCita['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("ascii")
+
+	headers["Referer"] = "https://prenotaonline.esteri.it/default.aspx"
+	# headers["Content-Length"] = "1336"
+	
+	# #Atenti! se debe cambiar la URL porque las solicitudes cambian de destino una vez logeado.
+	urlIn = "https://prenotaonline.esteri.it/default.aspx"
+	#Click en "Haga su cita"
+	r = s.post(urlIn, data=parametrosCita,headers=headers)
+
+	#---------------- FIN SECCION HAGA SU CITA ---------------
+
+	#---------------- SECCION TIPOS DE TURNO ---------------
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	parametrosTipoCita['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosTipoCita['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosTipoCita['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+	
+	# #Atenti! cambia de URL
+	urlIn = "https://prenotaonline.esteri.it/acc_Prenota.aspx"
+	headers["Referer"] = "https://prenotaonline.esteri.it/acc_Prenota.aspx"
+
+	# #Click en tipo de turno
+	r = s.post(urlIn, data=parametrosTipoCita,headers=headers)
+	# print(r.content)
+
+	#---------------- FIN SECCION TIPOS DE TURNO ---------------
+	
+	#---------------- SECCION DATOS ADICIONALES ---------------
+
+	soup = BeautifulSoup(r.content, 'html5lib')
+
+	parametrosDatosAdicionales['__VIEWSTATE'] = soup.find('input', attrs={'name': '__VIEWSTATE'})['value'].encode("utf-8")
+	parametrosDatosAdicionales['__VIEWSTATEGENERATOR'] = soup.find('input', attrs={'name': '__VIEWSTATEGENERATOR'})['value'].encode("utf-8")
+	parametrosDatosAdicionales['__EVENTVALIDATION'] = soup.find('input', attrs={'name': '__EVENTVALIDATION'})['value'].encode("utf-8")
+
+	r = s.post(urlIn, data=parametrosDatosAdicionales,headers=headers)
+	print(r.content)
+
+	#---------------- FIN SECCION DATOS ADICIONALES ---------------
 	
